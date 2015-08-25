@@ -3,7 +3,8 @@
 ifneq ($(KERNELRELEASE),)
     obj-m := manual_kobject_attribute.o
     obj-m += auto_kobject_attribute.o
-    obj-m += manual_kset_kobject_attribute.o 
+    obj-m += manual_kset_kobject_attribute.o
+    obj-m += bus_device_driver.o 
 
 # Otherwise we were called directly from the command
 # line; invoke the kernel build system.
