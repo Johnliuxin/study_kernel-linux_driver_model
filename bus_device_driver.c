@@ -67,13 +67,18 @@ struct bus_type embest_bus = {
  * Device related code
  ******************************************************************************
  */
+static struct device embest_device = {
+	.init_name = "embestDev",
+	.bus = &embest_bus,
+	//no release function, when do device_unregister, kernel will give a WARNING
+	//but it don't affect
+};
 
- 
  /*
  * Driver related code
  ******************************************************************************
  */
-
+ 
 static int __init example_init(void)
 {
 	int error;
@@ -83,13 +88,24 @@ static int __init example_init(void)
 		printk(KERN_ALERT "embest bus register failed \n");
 		goto bus_register_fail;
 	}
+	
+	error = device_register(&embest_device);
+	if (error) {
+		printk(KERN_ALERT "embest device register failed \n");
+		goto device_register_fail;
+	}
 
+	return 0;
+
+device_register_fail:
+	bus_unregister(&embest_bus);
 bus_register_fail:
 	return error;
 }
 
 static void example_exit(void)
 {
+	device_unregister(&embest_device);
 	bus_unregister(&embest_bus);
 }
 
