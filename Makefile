@@ -5,6 +5,7 @@ ifneq ($(KERNELRELEASE),)
     obj-m += auto_kobject_attribute.o
     obj-m += manual_kset_kobject_attribute.o
     obj-m += bus_device_driver.o 
+    obj-m += class_device.o
 
 # Otherwise we were called directly from the command
 # line; invoke the kernel build system.
