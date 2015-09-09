@@ -61,6 +61,8 @@ const struct attribute_group *bus_attr_groups[] = {
 struct bus_type embest_bus = {
 	.name = "embestBus",
 	.bus_groups = bus_attr_groups,
+	//we don't define a match function, so devices and drivers under this bus will
+	//always match.
 };
 
 /*
@@ -79,6 +81,27 @@ static struct device embest_device = {
  ******************************************************************************
  */
  
+static int embest_device_driver_probe(struct device *dev)
+{
+	printk(KERN_ALERT "embest_device_driver_probe, device name %s \n", dev_name(dev));
+	
+	return 0;
+}
+
+static int embest_device_driver_remove(struct device *dev)
+{
+	printk(KERN_ALERT "embest_device_driver_remove, device name %s \n", dev_name(dev));
+	
+	return 0;
+}
+static struct device_driver embest_driver = {
+	.name = "embestDev",
+	.owner		= THIS_MODULE,
+	.bus  = &embest_bus,
+	.probe = embest_device_driver_probe,
+	.remove = embest_device_driver_remove,
+};
+ 
 static int __init example_init(void)
 {
 	int error;
@@ -94,9 +117,17 @@ static int __init example_init(void)
 		printk(KERN_ALERT "embest device register failed \n");
 		goto device_register_fail;
 	}
+	
+	error = driver_register(&embest_driver);
+	if (error) {
+		printk(KERN_ALERT "embest driver register failed \n");
+		goto driver_register_fail;
+	}
 
 	return 0;
 
+driver_register_fail:
+	device_unregister(&embest_device);
 device_register_fail:
 	bus_unregister(&embest_bus);
 bus_register_fail:
@@ -105,6 +136,7 @@ bus_register_fail:
 
 static void example_exit(void)
 {
+	driver_unregister(&embest_driver);
 	device_unregister(&embest_device);
 	bus_unregister(&embest_bus);
 }
